@@ -1,0 +1,11 @@
+.venv
+__pycache__
+*.pyc
+.git
+.pytest_cache
+.ruff_cache
+tests
+.env
+finance.db
+test.db
+README.md

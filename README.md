@@ -12,10 +12,12 @@ API для учёта финансов, включающий мультивал�
 - SQLAlchemy
 - Pydantic / pydantic-settings
 - SQLite
-- aiohttp
+- Redis
+- httpx
 - pytest
 - ruff
 - uv
+- Docker
 
 ## Развёртывание
 
@@ -26,21 +28,25 @@ git clone <repo-url>
 cd FinTrack
 ```
 
-### Установка зависимостей
+### Docker
+
+```bash
+docker compose up --build
+```
+
+### Локально
+
+Установка зависимостей:
 
 ```bash
 uv sync
 ```
 
-### Настройка окружения
+Настройка окружения:
 
 ```bash
 cp .env.example .env
 ```
-
-### Запуск приложения
-
-Таблицы БД создаются автоматически при старте приложения.
 
 ```bash
 uv run fastapi dev main.py
@@ -88,6 +94,8 @@ uv run pytest tests/ -v
 - `app/schemas.py` — Pydantic-схемы запросов/ответов
 - `app/enums.py` — перечисления (валюты, типы операций)
 - `app/database.py` — подключение к БД
-- `app/config.py` — конфигурация из переменных окружения
+- `app/config/` — настройки из переменных окружения, логирование
+- `app/cache/` — кеш на Redis
 - `app/dependency.py` — зависимости FastAPI (сессия БД, текущий пользователь)
 - `tests/` — тесты (pytest)
+- `Dockerfile`, `docker-compose.yml` — контейнеризация
