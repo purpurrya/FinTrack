@@ -1,3 +1,4 @@
+import logging
 from decimal import Decimal
 
 import httpx
@@ -5,6 +6,8 @@ import httpx
 from app.cache.redis import cache
 from app.config import settings
 from app.enums import CurrencyEnum
+
+logger = logging.getLogger(__name__)
 
 FALLBACK_RATES: dict[tuple[CurrencyEnum, CurrencyEnum], Decimal] = {
     (CurrencyEnum.USD, CurrencyEnum.RUB): Decimal(str(95.0)),
@@ -29,9 +32,8 @@ async def get_exchange_rate(base: CurrencyEnum, target: CurrencyEnum) -> Decimal
 
     url = f"https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/{base.value}.json"
 
-    timeout = httpx.ClientTimeout(total=5.0)
     try:
-        async with httpx.AsyncClient(timeout=timeout) as client:
+        async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.get(url)
             response.raise_for_status()
             data = response.json()
@@ -45,6 +47,12 @@ async def get_exchange_rate(base: CurrencyEnum, target: CurrencyEnum) -> Decimal
         await cache.set(key, str(rate), ttl_seconds=settings.cache_ttl_seconds)
         return rate
     except Exception:
+        logger.warning(
+            "Failed to retrieve the %s->%s exchange rate from the external API, using fallback",
+            base.value,
+            target.value,
+            exc_info=True,
+        )
         return FALLBACK_RATES.get((base, target), Decimal(1))
 
 
