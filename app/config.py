@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     )
 
     database_url: str = "sqlite:///./finance.db"
+    redis_url: str = "redis://localhost:6379/0"
+    cache_ttl_seconds: int = 3600
 
 
 @lru_cache
