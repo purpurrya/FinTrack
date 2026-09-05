@@ -37,7 +37,6 @@ async def create_wallet(
     created_wallet = await wallet_repository.create_wallet(
         db, current_user.id, wallet.wallet_name, wallet.initial_balance, wallet.currency
     )
-    await db.commit()
     return WalletResponse.model_validate(created_wallet)
 
 

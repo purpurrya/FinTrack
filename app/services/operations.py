@@ -30,8 +30,6 @@ async def add_income(
         currency=wallet.currency,
         category=operation.description,
     )
-
-    await db.commit()
     return OperationResponse.model_validate(operation)
 
 
@@ -58,7 +56,6 @@ async def add_expense(
         currency=wallet.currency,
         category=operation.description,
     )
-    await db.commit()
     return OperationResponse.model_validate(operation)
 
 
@@ -127,5 +124,4 @@ async def transfer_between_wallets(
     )
     db.add(from_wallet)
     db.add(to_wallet)
-    await db.commit()
     return OperationResponse.model_validate(operation)
