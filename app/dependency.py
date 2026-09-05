@@ -1,24 +1,21 @@
-from collections.abc import Generator
+from collections.abc import AsyncGenerator
 
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.cache.redis import cache
 from app.config import settings
-from app.database import SessionLocal
+from app.database import AsyncSessionLocal
 from app.models import User
 from app.repository import users as users_repository
 
 security = HTTPBearer()
 
 
-def get_db() -> Generator[Session, None, None]:
-    db = SessionLocal()
-    try:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    async with AsyncSessionLocal() as db:
         yield db
-    finally:
-        db.close()
 
 
 def _user_cache_key(login: str) -> str:
@@ -27,7 +24,7 @@ def _user_cache_key(login: str) -> str:
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ) -> User:
     login = credentials.credentials
     key = _user_cache_key(login)
@@ -36,7 +33,7 @@ async def get_current_user(
     if cached_user:
         return User(**cached_user)
 
-    user = users_repository.get_user(db, login)
+    user = await users_repository.get_user(db, login)
 
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")

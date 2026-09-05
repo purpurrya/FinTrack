@@ -7,7 +7,6 @@ from app.api.v1.operations import router as operations_router
 from app.api.v1.users import router as users_router
 from app.api.v1.wallets import router as wallet_router
 from app.config.logging import setup_logging
-from app.database import Base, engine
 
 setup_logging()
 
@@ -24,6 +23,3 @@ app.include_router(users_router, prefix="/api/v1", tags=["users"])
 async def unhandled_exception_handler(request: Request, exc: Exception):
     logger.exception("Internal error with %s %s", request.method, request.url.path)
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
-
-
-Base.metadata.create_all(bind=engine)

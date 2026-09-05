@@ -1,14 +1,17 @@
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User
 
 
-def create_user(db: Session, login: str) -> User:
+async def create_user(db: AsyncSession, login: str) -> User:
     user = User(login=login)
     db.add(user)
-    db.flush()
+    await db.flush()
     return user
 
 
-def get_user(db: Session, login: str) -> User:
-    return db.query(User).filter(User.login == login).first()
+async def get_user(db: AsyncSession, login: str) -> User | None:
+    query = select(User).where(User.login == login)
+    result = await db.execute(query)
+    return result.scalar_one_or_none()

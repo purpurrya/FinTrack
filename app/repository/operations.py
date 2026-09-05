@@ -1,14 +1,15 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import CurrencyEnum
 from app.models import Operation
 
 
-def create_operation(
-    db: Session,
+async def create_operation(
+    db: AsyncSession,
     wallet_id: int,
     type: str,
     amount: Decimal,
@@ -25,21 +26,22 @@ def create_operation(
         subcategory=subcategory,
     )
     db.add(operation)
-    db.flush()
+    await db.flush()
     return operation
 
 
-def get_operations_list(
-    db: Session,
+async def get_operations_list(
+    db: AsyncSession,
     wallets_ids: list[int],
     date_from: datetime | None,
     date_to: datetime | None,
 ) -> list[Operation]:
-    query = db.query(Operation).filter(Operation.wallet_id.in_(wallets_ids))
+    query = select(Operation).where(Operation.wallet_id.in_(wallets_ids))
 
     if date_from:
-        query = query.filter(Operation.created_at >= date_from)
+        query = query.where(Operation.created_at >= date_from)
     if date_to:
-        query = query.filter(Operation.created_at <= date_to)
+        query = query.where(Operation.created_at <= date_to)
 
-    return query.all()
+    result = await db.execute(query)
+    return list(result.scalars().all())

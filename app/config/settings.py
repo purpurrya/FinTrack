@@ -8,7 +8,7 @@ class Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
 
-    database_url: str = "sqlite:///./finance.db"
+    database_url: str = "sqlite+aiosqlite:///./finance.db"
     redis_url: str = "redis://localhost:6379/0"
     cache_ttl_seconds: int = 3600
 

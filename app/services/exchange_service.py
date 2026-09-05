@@ -19,12 +19,12 @@ FALLBACK_RATES: dict[tuple[CurrencyEnum, CurrencyEnum], Decimal] = {
 }
 
 
-def _cache_key(base: CurrencyEnum, target: CurrencyEnum) -> str:
+async def _cache_key(base: CurrencyEnum, target: CurrencyEnum) -> str:
     return f"exchange_rate:{base.value}:{target.value}"
 
 
 async def get_exchange_rate(base: CurrencyEnum, target: CurrencyEnum) -> Decimal:
-    key = _cache_key(base, target)
+    key = await _cache_key(base, target)
 
     cached_rate = await cache.get(key)
     if cached_rate is not None:
@@ -57,4 +57,4 @@ async def get_exchange_rate(base: CurrencyEnum, target: CurrencyEnum) -> Decimal
 
 
 async def invalidate_exchange_rate(base: CurrencyEnum, target: CurrencyEnum) -> None:
-    await cache.delete(_cache_key(base, target))
+    await cache.delete(await _cache_key(base, target))

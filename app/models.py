@@ -4,14 +4,14 @@ from decimal import Decimal
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.database import Base
+from app.database import Base, def_none_an, pk_an, unique_str_an
 from app.enums import CurrencyEnum
 
 
 class Wallet(Base):
     __tablename__ = "wallet"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[pk_an]
     name: Mapped[str]
     balance: Mapped[Decimal]
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
@@ -22,18 +22,18 @@ class Wallet(Base):
 class User(Base):
     __tablename__ = "user"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    login: Mapped[str] = mapped_column(unique=True)
+    id: Mapped[pk_an]
+    login: Mapped[unique_str_an]
 
 
 class Operation(Base):
     __tablename__ = "operation"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[pk_an]
     wallet_id: Mapped[int] = mapped_column(ForeignKey("wallet.id"))
     type: Mapped[str]
     amount: Mapped[Decimal]
     currency: Mapped[CurrencyEnum]
-    category: Mapped[str | None] = mapped_column(default=None)
-    subcategory: Mapped[str | None] = mapped_column(default=None)
+    category: Mapped[def_none_an]
+    subcategory: Mapped[def_none_an]
     created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now())
